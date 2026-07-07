@@ -20,10 +20,16 @@
     .topbar { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(12px); background: rgba(255,255,255,.85); border-bottom: 1px solid var(--border); }
     .topbar-inner { max-width: 1200px; margin: 0 auto; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
     .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .logo { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: linear-gradient(135deg,var(--primary),#2563eb); color: #fff; box-shadow: var(--shadow); font-weight: 800; overflow: hidden; flex: 0 0 auto; }
+    .logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
     
     /* PENGUNCI UKURAN LOGO: Mencegah gambar meluber keluar bar atas */
-    .logo { width: 46px; height: 46px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg,var(--primary),#2563eb); box-shadow: var(--shadow); overflow: hidden; flex-shrink: 0; }
-    .logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .brand img {
+      height: 46px;
+        width: auto;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
     
     .brand h1 { margin: 0; font-size: clamp(16px, 2vw, 22px); line-height: 1.2; }
     .brand p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
@@ -83,7 +89,15 @@
     .nav-map-bubble.active-q { outline: 3px solid var(--accent); }
     .nav-map-bubble.unanswered { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
     .chart-box { max-height: 280px; margin-bottom: 20px; }
-    
+    /* PERBAIKAN GAMBAR SOAL: Agar responsif dan tidak meluber keluar kotak */
+    .card img, .q-editor-card img, .page img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 12px 0;
+      border-radius: 8px;
+    }
+
     @media print {
       body * { visibility: hidden; }
       #printWrapper, #printWrapper * { visibility: visible; }
