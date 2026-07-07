@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title id="siteTitleTag">Alat Tes Psikologi Internal - SMK PGRI 2 Kediri</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #f4f7fb; --surface: #fff; --surface-2: #f8fafc; --text: #0f172a; --muted: #64748b;
+      --primary: #0f3a66; --primary-2: #1d4ed8; --accent: #0ea5e9; --danger: #dc2626; --success: #16a34a;
+      --border: #dbe3ee; --shadow: 0 10px 30px rgba(15,23,42,.08); --radius: 20px;
+    }
+    * { box-sizing: border-box; } html, body { height: 100%; }
+    body { margin: 0; font-family: system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; background: var(--bg); color: var(--text); transition: background 0.3s; }
+    button, input, textarea, select { font-family: inherit; }
+
+    #appLayout { display: flex; height: 100vh; overflow: hidden; }
+    #sidebar { width: 280px; background: #0f172a; color: #fff; display: flex; flex-direction: column; justify-content: space-between; border-right: 1px solid rgba(255,255,255,0.05); }
+    .brand-area { padding: 24px; display: flex; align-items: center; gap: 14px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .brand-logo { width: 42px; height: 42px; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2)); }
+    .brand-info { display: flex; flex-direction: column; }
+    .brand-title { font-weight: 700; font-size: 15px; color: #fff; letter-spacing: 0.5px; line-height: 1.2; }
+    .brand-sub { font-size: 11px; color: #94a3b8; font-weight: 500; margin-top: 2px; }
+
+    .nav-links { padding: 16px; display: flex; flex-direction: column; gap: 6px; flex-grow: 1; overflow-y: auto; }
+    .nav-btn { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: none; background: none; color: #94a3b8; font-size: 14px; font-weight: 600; text-align: left; border-radius: 12px; cursor: pointer; transition: 0.2s; }
+    .nav-btn:hover { background: rgba(255,255,255,0.03); color: #fff; }
+    .nav-btn.active { background: var(--primary-2); color: #fff; box-shadow: 0 4px 12px rgba(29,78,216,0.3); }
+    .sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.05); text-align: center; font-size: 11px; color: #475569; font-weight: 500; }
+
+    #mainContent { flex-grow: 1; display: flex; flex-direction: column; background: var(--bg); overflow-y: auto; position: relative; }
+    .top-bar { height: 70px; background: var(--surface); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; border-bottom: 1px solid var(--border); z-index: 10; }
+    .top-title { font-size: 18px; font-weight: 700; color: var(--text); }
+    .view-panel { padding: 32px; max-width: 1200px; width: 100%; margin: 0 auto; display: none; animation: fadeIn 0.3s ease; flex-grow: 1; }
+    .view-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .hero-card { background: linear-gradient(135deg, var(--primary) 0%, #1e1b4b 100%); color: #fff; padding: 48px; border-radius: var(--radius); position: relative; overflow: hidden; box-shadow: var(--shadow); margin-bottom: 32px; }
+    .hero-card h1 { margin: 0 0 12px 0; font-size: 32px; font-weight: 800; letter-spacing: -0.5px; }
+    .hero-card p { margin: 0; font-size: 16px; color: #cbd5e1; max-width: 600px; line-height: 1.6; }
+    .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 32px; align-items: start; }
+    .card { background: var(--surface); border-radius: var(--radius); padding: 32px; border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 24px; }
+    .card-title { font-size: 18px; font-weight: 700; margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; color: var(--text); }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+    .form-control { width: 100%; padding: 12px 16px; border: 1px solid var(--border); background: var(--surface-2); border-radius: 12px; font-size: 14px; color: var(--text); transition: 0.2s; }
+    .form-control:focus { outline: none; border-color: var(--primary-2); background: var(--surface); box-shadow: 0 0 0 4px rgba(29,78,216,0.1); }
+    .btn-block { width: 100%; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border: none; font-size: 14px; font-weight: 700; border-radius: 12px; cursor: pointer; transition: 0.2s; text-decoration: none; }
+    .btn-primary { background: var(--primary-2); color: #fff; box-shadow: 0 4px 12px rgba(29,78,216,0.2); }
+    .btn-primary:hover { background: #154ec1; transform: translateY(-1px); }
+    .btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--border); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger:hover { background: #b91c1c; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-success:hover { background: #115e59; }
+
+    .quiz-container { display: grid; grid-template-columns: 1fr 320px; gap: 32px; align-items: start; }
+    .quiz-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
+    .quiz-header { padding: 24px 32px; border-bottom: 1px solid var(--border); background: var(--surface-2); display: flex; justify-content: space-between; align-items: center; }
+    .quiz-section-title { font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+    .quiz-timer { font-weight: 700; color: var(--danger); font-size: 15px; background: rgba(220,38,38,0.08); padding: 6px 14px; border-radius: 8px; }
+    .quiz-body { padding: 32px; }
+    .question-image-box { width: 100%; max-height: 380px; display: flex; justify-content: center; align-items: center; background: #fff; border: 1px solid var(--border); border-radius: 14px; margin-bottom: 24px; overflow: hidden; padding: 16px; }
+    .question-img { max-width: 100%; max-height: 340px; object-fit: contain; border-radius: 8px; }
+    .question-text { font-size: 18px; font-weight: 600; line-height: 1.6; margin-top: 0; margin-bottom: 28px; }
+    
+    .options-list { display: flex; flex-direction: column; gap: 12px; }
+    .option-item { display: flex; align-items: center; gap: 16px; padding: 16px 20px; border: 1px solid var(--border); background: var(--surface-2); border-radius: 14px; cursor: pointer; transition: 0.2s; position: relative; }
+    .option-item:hover { border-color: var(--muted); background: var(--surface); }
+    .option-item.selected { border-color: var(--primary-2); background: rgba(29,78,216,0.04); }
+    .option-badge { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: var(--muted); transition: 0.2s; }
+    .option-item.selected .option-badge { background: var(--primary-2); border-color: var(--primary-2); color: #fff; }
+    .option-label { font-size: 15px; font-weight: 600; color: var(--text); }
+
+    .quiz-footer { padding: 24px 32px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; background: var(--surface-2); }
+    .nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .nav-num { height: 42px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+    .nav-num:hover { border-color: var(--muted); }
+    .nav-num.answered { background: #e0f2fe; border-color: var(--accent); color: #0369a1; }
+    .nav-num.flagged { background: #fef3c7; border-color: #f59e0b; color: #b45309; }
+    .nav-num.current { background: var(--primary-2); border-color: var(--primary-2); color: #fff; box-shadow: 0 4px 10px rgba(29,78,216,0.2); }
+
+    .toast-box { position: fixed; bottom: 24px; right: 24px; background: #0f172a; color: #fff; padding: 14px 24px; border-radius: 12px; font-size: 13px; font-weight: 600; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: none; z-index: 1000; animation: slideUp 0.3s ease; }
+    @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 32px; }
+    .chart-container { position: relative; height: 320px; width: 100%; display: flex; justify-content: center; align-items: center; }
+    .table-container { width: 100%; overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { background: var(--surface-2); padding: 16px 20px; font-weight: 700; color: var(--text); border-bottom: 1px solid var(--border); }
+    td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--muted); font-weight: 500; }
+    tr:last-child td { border: none; }
+
+    .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .badge-success { background: rgba(22,163,74,0.1); color: var(--success); }
+
+    .progress-bar-container { background: #e2e8f0; border-radius: 6px; height: 6px; width: 100%; margin-top: 8px; overflow: hidden; }
+    .progress-fill { background: var(--primary-2); height: 100%; width: 0%; transition: width 0.3s; }
+
+    @media(max-width: 1024px) {
+      #sidebar { display: none; }
+      .quiz-container { grid-template-columns: 1fr; }
+      .results-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="appLayout">
+    <aside id="sidebar">
+      <div class="brand-area">
+        <img src="https://iili.io/CcvtEyN.png" alt="Logo SMK" class="brand-logo" id="brandImageNode" />
+        <div class="brand-info">
+          <span class="brand-title" id="sidebarBrandTitle">Alat Psikotes</span>
+          <span class="brand-sub" id="sidebarBrandSubtitle">SMK PGRI 2 Kediri</span>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <button class="nav-btn active" onclick="switchView('home')" id="navHomeBtn">Beranda</button>
+        <button class="nav-btn" onclick="switchView('quiz')" id="navQuizBtn">Mulai Tes</button>
+        <button class="nav-btn" onclick="switchView('results')" id="navResultsBtn">Hasil Tes</button>
+        <button class="nav-btn" onclick="switchView('admin')" id="navAdminBtn">Administrator</button>
+      </nav>
+      <div class="sidebar-footer">
+        Internal Assessment System &copy; 2026
+      </div>
+    </aside>
+
+    <main id="mainContent">
+      <header class="top-bar">
+        <div class="top-title" id="viewCurrentTitle">Beranda Utama</div>
+        <div style="font-size: 13px; font-weight: 700; color: var(--muted);" id="userDisplayBar">Status: Siap Memulai</div>
+      </header>
+
+      <section id="panelHome" class="view-panel active">
+        <div class="hero-card">
+          <h1 id="heroDisplayTitle">Sistem Evaluasi Psikologi Mandiri</h1>
+          <p id="heroDisplayDesc">Platform internal asesmen pemetaan potensi bakat, minat kerja, adaptasi spasial, serta profil kepribadian kerja siswa.</p>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h2 class="card-title">Identitas Peserta</h2>
+            <div class="form-group">
+              <label>Nama Lengkap</label>
+              <input type="text" id="regName" class="form-control" placeholder="Masukkan nama resmi Anda" />
+            </div>
+            <div class="form-group">
+              <label>Nomor Induk Siswa (NIS)</label>
+              <input type="text" id="regId" class="form-control" placeholder="Contoh: 12455" />
+            </div>
+            <div class="form-group">
+              <label>Kelas / Kompetensi Keahlian</label>
+              <select id="regClass" class="form-control">
+                <option value="XII-TKRO">XII Teknik Kendaraan Ringan Otomotif</option>
+                <option value="XII-TBSM">XII Teknik Bisnis Sepeda Motor</option>
+                <option value="XII-TKJ">XII Teknik Komputer dan Jaringan</option>
+                <option value="XII-RPL">XII Rekayasa Perangkat Lunak</option>
+                <option value="XII-AKL">XII Akuntansi & Keuangan Lembaga</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="initiateQuizSession()">Validasi & Masuk Ruang Tes</button>
+          </div>
+          <div class="card">
+            <h2 class="card-title">Petunjuk Pelaksanaan</h2>
+            <div id="guideDisplayContent" style="font-size: 14px; color: var(--muted); line-height: 1.6; font-weight: 500;">
+              1. Selesaikan total 5 section instrumen secara berurutan.<br/>
+              2. Setiap bagian mengukur parameter psikologis yang unik.<br/>
+              3. Kerjakan dengan jujur dalam suasana tenang.<br/>
+              4. Jangan menutup peramban sebelum hasil terkirim secara penuh.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="panelQuiz" class="view-panel">
+        <div class="quiz-container">
+          <div class="quiz-card">
+            <div class="quiz-header">
+              <span class="quiz-section-title" id="quizCurrentSectionLabel">Section 1: Penalaran Figural</span>
+              <div class="quiz-timer" id="quizTimerNode">00:00</div>
+            </div>
+            <div class="quiz-body">
+              <div class="question-image-box" id="qImageBox" style="display: none;">
+                <img src="" alt="Soal Visual" class="question-img" id="questionImageFrame" />
+              </div>
+              <p class="question-text" id="questionTextFrame">Memuat deskripsi butir soal...</p>
+              <div class="options-list" id="optionsContainerNode"></div>
+            </div>
+            <div class="quiz-footer">
+              <button class="btn btn-secondary" onclick="navigatePrev()">Kembali</button>
+              <button class="btn btn-secondary" style="background:#fef3c7; color:#d97706; border-color:#fcd34d;" onclick="toggleFlagCurrent()">Ragu-Ragu</button>
+              <button class="btn btn-primary" onclick="navigateNext()" id="nextActionBtn">Selanjutnya</button>
+            </div>
+          </div>
+          <div class="card" style="padding: 24px;">
+            <h3 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 700; color: var(--text);">Navigasi Soal</h3>
+            <div class="nav-grid" id="numberNavGrid"></div>
+            <div style="margin-top:24px;">
+              <span style="font-size:12px; font-weight:700; color:var(--muted);">Progres Global</span>
+              <div class="progress-bar-container">
+                <div class="progress-fill" id="globalProgressFill"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="panelResults" class="view-panel">
+        <div class="hero-card" style="background: linear-gradient(135deg, var(--success) 0%, #064e3b 100%);">
+          <h1>Asesmen Selesai!</h1>
+          <p>Profil data kompetensi kognitif dan perilaku psikologis Anda berhasil dikompilasi secara real-time.</p>
+        </div>
+        <div class="results-grid">
+          <div class="card">
+            <h2 class="card-title">Matriks Kompetensi & Bakat</h2>
+            <div class="chart-container">
+              <canvas id="resultsRadarChart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="card-title">Rincian Capaian Asesmen</h2>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Dimensi Evaluasi</th>
+                    <th>Skor Mentah</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="resultsTableBody">
+                  </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="text-align: right; display: flex; gap: 12px; justify-content: flex-end;">
+          <button class="btn btn-secondary" onclick="exportResultsCSV()">Unduh Rekap CSV</button>
+          <button class="btn btn-success" onclick="syncDataToGateway()">Sinkronisasi Server Cloud</button>
+        </div>
+      </section>
+
+      <section id="panelAdmin" class="view-panel">
+        <div class="card">
+          <h2 class="card-title">Konfigurasi Visual & Identitas Sistem</h2>
+          <div class="grid-2" style="grid-template-columns: 1fr 1fr;">
+            <div class="form-group">
+              <label>Judul Utama (Sidebar)</label>
+              <input type="text" id="brandInputTitle" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label>Sub-Judul Lembaga</label>
+              <input type="text" id="brandInputSubtitle" class="form-control" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Warna Tema Utama (Hex)</label>
+            <input type="color" id="brandInputColor" style="height:45px; padding:4px;" class="form-control" />
+          </div>
+          <button class="btn btn-primary" onclick="saveBrandingConfig()">Terapkan Visual Baru</button>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title">Manajemen Konten Beranda</h2>
+          <div class="form-group">
+            <label>Judul Hero Banner</label>
+            <input type="text" id="homeInputHeroTitle" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label>Deskripsi Pendek</label>
+            <textarea id="homeInputHeroText" class="form-control" rows="2"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Panduan Pelaksanaan Tes</label>
+            <textarea id="homeInputGuide" class="form-control" rows="4"></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="saveHomepageConfig()">Simpan Konten Beranda</button>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title">Konektor Database Cloud (Google Sheet Gateway)</h2>
+          <div class="form-group">
+            <label>Google Web App Script URL Endpoint</label>
+            <input type="text" id="connInputEndpoint" class="form-control" placeholder="https://script.google.com/macros/s/.../exec" />
+          </div>
+          <div class="form-group">
+            <label>Spreadsheet Destination ID</label>
+            <input type="text" id="connInputSheetId" class="form-control" placeholder="1abcdefghijklmnopqrstuvwxyz" />
+          </div>
+          <div style="display:flex; gap:12px;">
+            <button class="btn btn-primary" onclick="saveConnectorConfig()">Simpan Konfigurasi Server</button>
+            <button class="btn btn-secondary" onclick="openLinkedSpreadsheet()">Buka Spreadsheet Utama</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast-box" id="toastContainer">Notifikasi Sistem</div>
+
+  <script>
+    // DATA PERTANYAAN ASESMEN UTAMA
+    // Section 1 telah berhasil diupdate menggunakan Direct Link yang valid dan responsif
+    const questions = [
+      // SECTION 1: PENALARAN FIGURAL (20 SOAL VISUAL)
+      { id: 1, section: 1, type: "visual", image: "https://i.imghippo.com/files/Xo1768lBI.jpg", text: "Perhatikan runtunan pola pola gambar di atas. Analisis logikanya lalu tentukan opsi mana yang merupakan kelanjutan paling valid!", options: ["A", "B", "C", "D", "E"], answer: 0 },
+      { id: 2, section: 1, type: "visual", image: "https://i.imghippo.com/files/iTt5997SJk.jpg", text: "Berdasarkan hubungan struktural objek gambar di atas, pilihlah alternatif gambar yang tepat untuk melengkapi ruang kosong tersebut!", options: ["A", "B", "C", "D", "E"], answer: 1 },
+      { id: 3, section: 1, type: "visual", image: "https://i.imghippo.com/files/DNRw4601VY.jpg", text: "Pilihlah satu objek gambar yang logis untuk melengkapi baris matriks figural di atas!", options: ["A", "B", "C", "D", "E"], answer: 2 },
+      { id: 4, section: 1, type: "visual", image: "https://i.imghippo.com/files/tFFP5781csw.jpg", text: "Temukan pola rotasi atau perubahan bentuk yang terjadi pada gambar di atas lalu tentukan kelanjutan polanya!", options: ["A", "B", "C", "D", "E"], answer: 3 },
+      { id: 5, section: 1, type: "visual", image: "https://i.imghippo.com/files/HdvB1139mzM.jpg", text: "Manakah dari pilihan gambar berikut yang secara eksak melengkapi susunan pola logis di atas?", options: ["A", "B", "C", "D", "E"], answer: 4 },
+      { id: 6, section: 1, type: "visual", image: "https://i.imghippo.com/files/LO7362kE.jpg", text: "Analisis penambahan elemen grafis pada pola soal di atas. Tentukan pilihan gambar selanjutnya!", options: ["A", "B", "C", "D", "E"], answer: 0 },
+      { id: 7, section: 1, type: "visual", image: "https://i.imghippo.com/files/kTFH5552tM.jpg", text: "Pilihlah bentuk figural yang merupakan hasil operasi logis dari deret gambar di atas!", options: ["A", "B", "C", "D", "E"], answer: 1 },
+      { id: 8, section: 1, type: "visual", image: "https://i.imghippo.com/files/Ab5502EBw.jpg", text: "Perhatikan baik-baik segmentasi gambar di atas. Manakah pola penutup yang paling presisi?", options: ["A", "B", "C", "D", "E"], answer: 2 },
+      { id: 9, section: 1, type: "visual", image: "https://i.imghippo.com/files/xgEz9203QA.jpg", text: "Identifikasi relasi analogi figural dari gambar di atas untuk menentukan jawaban yang kosong!", options: ["A", "B", "C", "D", "E"], answer: 3 },
+      { id: 10, section: 1, type: "visual", image: "https://i.imghippo.com/files/UgK3977REE.jpg", text: "Tentukan gambar manakah yang melanjutkan konsistensi spasial dari deret pola di atas!", options: ["A", "B", "C", "D", "E"], answer: 4 },
+      { id: 11, section: 1, type: "visual", image: "https://i.imghippo.com/files/lMC4445CRw.jpg", text: "Temukan transformasi objek yang terjadi lalu terapkan pada pola kelanjutan gambar berikut!", options: ["A", "B", "C", "D", "E"], answer: 0 },
+      { id: 12, section: 1, type: "visual", image: "https://i.imghippo.com/files/OaTu8462r.jpg", text: "Pilihlah alternatif gambar yang memenuhi aturan logika pembentukan formasi objek di atas!", options: ["A", "B", "C", "D", "E"], answer: 1 },
+      { id: 13, section: 1, type: "visual", image: "https://i.imghippo.com/files/gDyw5368qkc.jpg", text: "Lengkapi bagian kosong dari diagram atau susunan matriks visual di atas!", options: ["A", "B", "C", "D", "E"], answer: 2 },
+      { id: 14, section: 1, type: "visual", image: "https://i.imghippo.com/files/HXe2583yds.jpg", text: "Manakah gambar yang merupakan kelanjutan linier yang sinkron dengan pola di atas?", options: ["A", "B", "C", "D", "E"], answer: 3 },
+      { id: 15, section: 1, type: "visual", image: "https://i.imghippo.com/files/Jc1987XVo.jpg", text: "Analisis pergerakan rotasi jarum atau komponen matriks di atas untuk memilih gambar target!", options: ["A", "B", "C", "D", "E"], answer: 4 },
+      { id: 16, section: 1, type: "visual", image: "https://i.imghippo.com/files/Gd1146M.jpg", text: "Pilihlah konfigurasi gambar yang tepat sesuai urutan logika perkembangan diagram!", options: ["A", "B", "C", "D", "E"], answer: 0 },
+      { id: 17, section: 1, type: "visual", image: "https://i.imghippo.com/files/Gb9368gM.jpg", text: "Pilihlah satu di antara lima pilihan gambar yang paling logis menyambung pola di atas!", options: ["A", "B", "C", "D", "E"], answer: 1 },
+      { id: 18, section: 1, type: "visual", image: "https://i.imghippo.com/files/bisI7001FA.jpg", text: "Carilah korelasi struktural internal objek untuk memecahkan teka-teki visual di atas!", options: ["A", "B", "C", "D", "E"], answer: 2 },
+      { id: 19, section: 1, type: "visual", image: "https://i.imghippo.com/files/zHm7188RQ.jpg", text: "Tentukan gambar pelengkap yang konsisten secara geometri dari opsi yang tersedia!", options: ["A", "B", "C", "D", "E"], answer: 3 },
+      { id: 20, section: 1, type: "visual", image: "https://i.imghippo.com/files/bTNG3353SDQ.jpg", text: "Selesaikan pola seri figural terakhir ini dengan mendeteksi elemen perubahan gambar secara cermat!", options: ["A", "B", "C", "D", "E"], answer: 4 },
+
+      // SECTION 2: VERBAL ANALOGI (20 SOAL TEKS - PERTAHANKAN UTUH)
+      { id: 21, section: 2, type: "text", text: "MOBIL : BENSIN = PELARI : ...", options: ["Makanan", "Sepatu", "Lintasan", "Kaos", "Air"], answer: 0 },
+      { id: 22, section: 2, type: "text", text: "BAWANG : SIUNG = KAIN : ...", options: ["Meter", "Lembar", "Kodi", "Gulung", "Helai"], answer: 1 },
+      { id: 23, section: 2, type: "text", text: "PANGGUNG : AKTOR = LAPANGAN : ...", options: ["Sutradara", "Wasit", "Penonton", "Atlet", "Bola"], answer: 3 },
+      { id: 24, section: 2, type: "text", text: "GENTENG : TANAH LIAT = EMAS : ...", options: ["Logam", "Tambang", "Perhiasan", "Karat", "Murni"], answer: 0 },
+      { id: 25, section: 2, type: "text", text: "MATA : KACAMATA = KAKI : ...", options: ["Sepatu", "Kaus", "Sandal", "Lantai", "Celana"], answer: 0 },
+      { id: 26, section: 2, type: "text", text: "KREATIVITAS : SENIMAN = FORMULA : ...", options: ["Laboratorium", "Ilmuwan", "Kimia", "Penelitian", "Teori"], answer: 1 },
+      { id: 27, section: 2, type: "text", text: "DOKTER : PASIEN = GURU : ...", options: ["Sekolah", "Kelas", "Siswa", "Pelajaran", "Buku"], answer: 2 },
+      { id: 28, section: 2, type: "text", text: "KAYU : POHON = EMAS : ...", options: ["Logam", "Tambang", "Perhiasan", "Gelang", "Batangan"], answer: 1 },
+      { id: 29, section: 2, type: "text", text: "PANAS : API = DINGIN : ...", options: ["Es", "Salju", "Kulkas", "Hujan", "Malam"], answer: 0 },
+      { id: 30, section: 2, type: "text", text: "GIGI : KUNYAH = JARI : ...", options: ["Tangan", "Kuku", "Pegang", "Cincin", "Sentuh"], answer: 2 },
+      { id: 31, section: 2, type: "text", text: "SENDOK : MAKAN = PENA : ...", options: ["Tinta", "Buku", "Kertas", "Tulis", "Gambar"], answer: 3 },
+      { id: 32, section: 2, type: "text", text: "RESTORAN : KOKI = RUMAH SAKIT : ...", options: ["Pasien", "Perawat", "Apotek", "Obat", "Dokter"], answer: 4 },
+      { id: 33, section: 2, type: "text", text: "MATAHARI : TERANG = LAMPU : ...", options: ["Listrik", "Malam", "Kamar", "Cahaya", "Gelap"], answer: 3 },
+      { id: 34, section: 2, type: "text", text: "KENDARAAN : GARASI = PESAWAT : ...", options: ["Bandara", "Pilot", "Hanggar", "Landasan", "Terbang"], answer: 2 },
+      { id: 35, section: 2, type: "text", text: "BULAN : BUMI = BUMI : ...", options: ["Bintang", "Matahari", "Planet", "Satelit", "Galaksi"], answer: 1 },
+      { id: 36, section: 2, type: "text", text: "HAUS : MINUM = LAPAR : ...", options: ["Kenyang", "Makanan", "Masak", "Makan", "Restoran"], answer: 3 },
+      { id: 37, section: 2, type: "text", text: "KERTAS : REKREASI = BUKU : ...", options: ["Perpustakaan", "Ilmu", "Tulis", "Baca", "Rak"], answer: 1 },
+      { id: 38, section: 2, type: "text", text: "KOMPAS : ARAH = JAM : ...", options: ["Waktu", "Menit", "Detik", "Dinding", "Tangan"], answer: 0 },
+      { id: 39, section: 2, type: "text", text: "EPIDEMI : PENYAKIT = INFLASI : ...", options: ["Uang", "Ekonomi", "Harga", "Pasar", "Bank"], answer: 2 },
+      { id: 40, section: 2, type: "text", text: "KUPING : MENDENGAR = LIDAH : ...", options: ["Bicara", "Mengecap", "Merasa", "Makan", "Ludah"], answer: 1 },
+
+      // SECTION 3: RIASEC INTEREST (20 SOAL TEKS - PERTAHANKAN UTUH)
+      { id: 41, section: 3, type: "text", text: "Saya suka merakit komponen mesin, membetulkan instalasi listrik atau perangkat elektronik secara langsung.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "R" },
+      { id: 42, section: 3, type: "text", text: "Saya gemar melakukan penelitian ilmiah, membaca jurnal sains, dan memecahkan teka-teki logika matematika.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "I" },
+      { id: 43, section: 3, type: "text", text: "Saya senang mengekspresikan diri melalui seni, melukis, mendesain grafis, atau menulis cerita fiksi kreatif.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "A" },
+      { id: 44, section: 3, type: "text", text: "Saya suka mendengarkan keluh kesah orang lain, mengajar anak-anak, atau melakukan aktivitas sosial kerelawanan.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "S" },
+      { id: 45, section: 3, type: "text", text: "Saya menikmati memimpin suatu tim kerja, memengaruhi keputusan orang lain, dan bernegosiasi bisnis keuntungan.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "E" },
+      { id: 46, section: 3, type: "text", text: "Saya sangat teliti menyusun arsip dokumen finansial, membuat tabel data, dan bekerja dalam sistem birokrasi teratur.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "C" },
+      { id: 47, section: 3, type: "text", text: "Saya lebih memilih bekerja di luar ruangan/lapangan (outdoor) menggunakan peralatan fisik fisik.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "R" },
+      { id: 48, section: 3, type: "text", text: "Saya tertarik menganalisis data statistik rumit untuk mencari akar permasalahan teknis.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "I" },
+      { id: 49, section: 3, type: "text", text: "Saya menyukai kebebasan bekerja tanpa ikatan aturan jam kantor yang terlalu kaku.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "A" },
+      { id: 50, section: 3, type: "text", text: "Melatih atau membimbing rekan kerja baru memberikan kepuasan emosional yang tinggi bagi saya.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "S" },
+      { id: 51, section: 3, type: "text", text: "Saya berambisi untuk mendirikan usaha mandiri (start-up) dan menjadi manajer operasional utama.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "E" },
+      { id: 52, section: 3, type: "text", text: "Memastikan neraca pembukuan keuangan balance hingga digit terkecil adalah aktivitas yang seru.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "C" },
+      { id: 53, section: 3, type: "text", text: "Bekerja mengoperasikan mesin industri atau alat berat ritme kerjanya cocok untuk saya.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "R" },
+      { id: 54, section: 3, type: "text", text: "Saya senang menghabiskan waktu berjam-jam mempelajari algoritma pemrograman atau teori fisika abstrak.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "I" },
+      { id: 55, section: 3, type: "text", text: "Membuat aransemen musik, menulis naskah drama, atau mendekorasi interior ruangan sangat menyenangkan.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "A" },
+      { id: 56, section: 3, type: "text", text: "Saya bersemangat mendampingi komunitas masyarakat marginal demi mendapatkan hak keadilan mereka.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "S" },
+      { id: 57, section: 3, type: "text", text: "Menjual produk komersial langsung kepada konsumen dengan target omset menantang minat saya.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "E" },
+      { id: 58, section: 3, type: "text", text: "Menyusun jadwal kegiatan, database berkas, dan inventaris barang sekolah adalah keahlian saya.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "C" },
+      { id: 59, section: 3, type: "text", text: "Saya suka melakukan aktivitas bercocok tanam, peternakan, atau budidaya alam terbuka.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "R" },
+      { id: 60, section: 3, type: "text", text: "Melakukan survei medis laboratoris demi menemukan formula obat baru memicu antusiasme saya.", options: ["Sangat Tidak Suka", "Tidak Suka", "Biasa Saja", "Suka", "Sangat Suka"], answer: null, scoreType: "I" },
+
+      // SECTION 4: KEPRIBADIAN DISC (20 SOAL TEKS - PERTAHANKAN UTUH)
+      { id: 61, section: 4, type: "text", text: "Dalam situasi kerja kelompok, saya cenderung mengambil kendali penuh, bersikap asertif, fokus pada pencapaian hasil akhir dengan cepat tanpa menunda waktu.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "D" },
+      { id: 62, section: 4, type: "text", text: "Saya suka menjadi pusat perhatian, mudah bergaul, penuh antusiasme menularkan energi positif kepada rekan sekitar.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "I" },
+      { id: 63, section: 4, type: "text", text: "Saya adalah pendengar setia yang sabar, menghindari konflik terbuka, menyukai stabilitas ritme kerja yang damai tenang.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "S" },
+      { id: 64, section: 4, type: "text", text: "Saya sangat patuh pada instruksi baku standar operasional, mengedepankan akurasi presisi, bertindak logis analitis.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "C" },
+      { id: 65, section: 4, type: "text", text: "Tantangan berat dan persaingan ketat justru memotivasi saya untuk bekerja melampaui batas standar.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "D" },
+      { id: 66, section: 4, type: "text", text: "Saya mahir mencairkan suasana kaku dengan komunikasi interpersonal yang persuasif serta humoris.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "I" },
+      { id: 67, section: 4, type: "text", text: "Saya merasa tidak nyaman jika ritme kerja harian berubah secara mendadak tanpa pemberitahuan jauh hari.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "S" },
+      { id: 68, section: 4, type: "text", text: "Sebelum mengambil keputusan penting, saya wajib memeriksa validitas seluruh fakta dan data angka pendukung.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "C" },
+      { id: 69, section: 4, type: "text", text: "Saya bersikap direct (langsung apa adanya) saat memberikan kritik tajam, demi perbaikan kualitas performa.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "D" },
+      { id: 70, section: 4, type: "text", text: "Saya senang memotivasi orang lain agar mereka bersemangat meraih impian masa depan mereka.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "I" },
+      { id: 71, section: 4, type: "text", text: "Membantu menyelesaikan tugas rekan tim demi keharmonisan kelompok adalah prioritas utama kerja saya.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "S" },
+      { id: 72, section: 4, type: "text", text: "Saya merasa risih apabila melihat hasil pekerjaan yang tidak rapi, tidak terstruktur, atau asal-asalan.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "C" },
+      { id: 73, section: 4, type: "text", text: "Saya berani mengambil risiko tinggi demi mencapai efisiensi target operasional perusahaan.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "D" },
+      { id: 74, section: 4, type: "text", text: "Membangun jejaring sosial baru (networking) adalah bakat alamiah yang saya miliki.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "I" },
+      { id: 75, section: 4, type: "text", text: "Saya dikenal sebagai pribadi yang loyal, sabar, dan dapat diandalkan dalam jangka panjang.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "S" },
+      { id: 76, section: 4, type: "text", text: "Saya menyukai aturan sistem yang jelas, rapi, transparan, serta dapat diprediksi secara logis matematis.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "C" },
+      { id: 77, section: 4, type: "text", text: "Saya tidak suka diperintah secara mendetail; saya lebih optimal diberikan kebebasan cara bertindak.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "D" },
+      { id: 78, section: 4, type: "text", text: "Optimisme tinggi membuat saya selalu melihat peluang sukses di tengah badai krisis masalah.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "I" },
+      { id: 79, section: 4, type: "text", text: "Menjaga ritme lingkungan kerja tetap kondusif, aman, tentram, damai merupakan prinsip hidup saya.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "S" },
+      { id: 80, section: 4, type: "text", text: "Saya selalu membuat catatan detail berkala terstruktur untuk memantau perkembangan harian tugas.", options: ["Sangat Tidak Sesuai", "Tidak Sesuai", "Netral", "Sesuai", "Sangat Sesuai"], answer: null, scoreType: "C" },
+
+      // SECTION 5: SITUATIONAL JUDGEMENT WORK ETHIC (20 SOAL TEKS - PERTAHANKAN UTUH)
+      { id: 81, section: 5, type: "text", text: "Ketika dihadapkan pada tenggat waktu (deadline) proyek krusial yang tiba-tiba dimajukan oleh atasan, respons tindakan saya:", options: ["Panik dan memprotes kebijakan sepihak", "Bekerja lembur secara mandiri tanpa koordinasi", "Menyusun skala prioritas mendesak bersama tim", "Meminta kelonggaran waktu tambahan", "Menyerahkan hasil apa adanya yang selesai"], answer: 2 },
+      { id: 82, section: 5, type: "text", text: "Jika saya menemukan adanya indikasi celah kekeliruan data laporan keuangan yang dibuat senior kerja, saya akan:", options: ["Membiarkannya agar tidak memicu konflik", "Melaporkan langsung ke kepala direksi", "Menegurnya di depan forum rapat terbuka", "Mendiskusikannya secara tertutup & sopan demi koreksi bersama", "Membocorkannya ke rekan kantor yang lain"], answer: 3 },
+      { id: 83, section: 5, type: "text", text: "Saat ide gagasan inovasi kerja saya ditolak mentah-mentah dalam forum musyawarah besar, sikap saya:", options: ["Kecewa dan memilih pasif di rapat berikutnya", "Menerima dengan lapang dada & mengevaluasi argumen penolakan", "Meninggalkan ruang rapat seketika (walkout)", "Tetap bersikeras memaksa ide saya diterapkan", "Membuat kubu oposisi tandingan"], answer: 1 },
+      { id: 84, section: 5, type: "text", text: "Apabila performa target kerja bulanan saya dinyatakan menurun oleh supervisor instrumen evaluasi:", options: ["Mencari alasan pembenaran faktor eksternal", "Menerima kritik & menyusun rencana aksi perbaikan konkret", "Menuduh sistem penilaian bias subjektif", "Merasa patah semangat dan berniat resign", "Mengabaikan teguran tersebut"], answer: 1 },
+      { id: 85, section: 5, type: "text", text: "Menghadapi rekan satu tim kerja yang pasif dan menolak berkontribusi maksimal secara adil:", options: ["Melaporkan langsung ke HRD agar dipecat", "Mengambil alih semua tugasnya sendirian", "Menegur personal & membantunya membagi jobdesk sesuai porsinya", "Membalas dengan ikut bersikap malas-malasan", "Mengeluarkan namanya dari credit-title proyek"], answer: 2 },
+      { id: 86, section: 5, type: "text", text: "Jika terjadi kegagalan teknis fatal pada sistem server saat saya bertugas sebagai operator utama:", options: ["Menyalahkan vendor penyedia perangkat keras", "Tetap tenang, amankan database sekunder, & jalankan protokol darurat", "Lari meninggalkan ruang server karena takut", "Menunggu instruksi manual esok hari", "Berpura-pura tidak tahu kejadian tersebut"], answer: 1 },
+      { id: 87, section: 5, type: "text", text: "Sikap saya terhadap regulasi absensi kehadiran digital super ketat di lingkungan kerja baru:", options: ["Mematuhinya dengan penuh disiplin kesadaran profesional", "Mencari celah manipulasi sistem GPS", "Mengeluh secara berkala di media sosial", "Sering terlambat dengan alasan kemacetan jalan", "Meminta pengecualian hak khusus"], answer: 0 },
+      { id: 88, section: 5, type: "text", text: "Ketika dialihkan ke divisi baru yang sama sekali berbeda dengan latar belakang keahlian saya:", options: ["Menolak mutasi karena merasa tidak mampu", "Menerima dengan terpaksa & bekerja setengah hati", "Belajar cepat secara proaktif dari nol serta beradaptasi", "Mengajukan komplain ke serikat pekerja", "Sengaja berbuat salah agar dipindahkan lagi"], answer: 2 },
+      { id: 89, section: 5, type: "text", text: "Melihat rekan kerja mengalami kesulitan teknis berat di saat tugas mandiri saya telah selesai sempurna:", options: ["Langsung pulang karena jam kantor sudah habis", "Menawarkan bantuan tenaga/pikiran demi percepatan target tim", "Menertawakan ketidakmampuan teknis mereka", "Menonton cara mereka bekerja tanpa membantu", "Meminta imbalan upah tambahan"], answer: 1 },
+      { id: 90, section: 5, type: "text", text: "Komitmen saya terhadap kerahasiaan data operasional internal lembaga sekolah/perusahaan:", options: ["Menjualnya ke pihak kompetitor jika harganya mahal", "Menjaga kerahasiaannya dengan integritas tinggi dalam kondisi apapun", "Menjadikannya bahan obrolan santai di warung kopi", "Membagikannya hanya ke teman dekat", "Mengunggah cuplikannya ke story media sosial"], answer: 1 },
+      { id: 91, section: 5, type: "text", text: "Jika saya tidak sengaja merusakkan fasilitas inventaris kantor yang berharga mahal:", options: ["Menyembunyikannya di gudang belakang", "Mengaku jujur secara ksatria kepada sarpras & bertanggung jawab", "Menuduh rekan kerja lain sebagai pelakunya", "Membiarkannya rusak sampai orang lain tahu", "Mengundurkan diri diam-diam"], answer: 1 },
+      { id: 92, section: 5, type: "text", text: "Apabila saya ditugaskan memimpin proyek dengan anggota yang memiliki latar belakang suku/agama berbeda:", options: ["Meminta penukaran anggota yang sevisi saja", "Memperlakukan semua anggota secara adil, inklusif, & profesional", "Mengutamakan pendapat anggota dari kelompok mayoritas", "Bersikap diskriminatif saat pembagian bonus", "Membatasi komunikasi formal saja"], answer: 1 },
+      { id: 93, section: 5, type: "text", text: "Ketika menghadapi keluhan (komplain) konsumen yang emosional dan berbicara dengan nada tinggi:", options: ["Ikut membalas dengan nada membentak keras", "Mendengarkan aktif, empati, tenang, & menawarkan solusi win-win", "Menangis dan meninggalkan meja pelayanan", "Mengabaikan kehadiran konsumen tersebut", "Memanggil petugas keamanan untuk mengusirnya"], answer: 1 },
+      { id: 94, section: 5, type: "text", text: "Pandangan saya mengenai budaya inovasi perubahan teknologi digital di dunia kerja modern:", options: ["Ancaman yang harus ditolak demi keamanan kerja konvensional", "Peluang besar untuk akselerasi efisiensi yang harus dipelajari", "Hal yang merepotkan dan menambah beban pikiran", "Hanya tren sesaat yang akan hilang", "Cukup diikuti jika dipaksa keadaan saja"], answer: 1 },
+      { id: 95, section: 5, type: "text", text: "Jika saya mendapatkan bonus apresiasi dana yang melimpah atas kesuksesan proyek tim:", options: ["Menikmatinya sendirian karena saya merasa paling lelah", "Membaginya secara proporsional kepada seluruh anggota tim", "Menyombongkan diri di hadapan tim lain", "Menyimpan uangnya tanpa memberi tahu anggota", "Menggunakannya untuk menyuap atasan"], answer: 1 },
+      { id: 96, section: 5, type: "text", text: "Bagaimana tindakan Anda jika melihat fasilitas air kantor bocor terus-menerus tanpa penanganan:", options: ["Membiarkannya karena bukan urusan jobdesk saya", "Melaporkan segera ke bagian kebersihan/sarpras untuk diperbaiki", "Mengambil foto untuk menjadikannya bahan kritikan", "Menunggu orang lain yang bergerak melaporkan", "Menutup keran dengan paksa hingga patah"], answer: 1 },
+      { id: 97, section: 5, type: "text", text: "Saat beban kerja harian terasa sangat menumpuk dan memicu stres tingkat tinggi, saya:", options: ["Melampiaskan kemarahan pada rekan kerja", "Mengambil jeda istirahat sejenak (mindfulness) lalu menyusun ulang skala prioritas", "Membolos kerja tanpa kabar keterangan", "Mengkonsumsi obat penenang tanpa resep", "Pasrah dan membiarkan tugas terbengkalai"], answer: 1 },
+      { id: 98, section: 5, type: "text", text: "Prinsip saya mengenai tindakan gratifikasi (pemberian hadiah/uang pelicin) dari klien:", options: ["Menerimanya selama tidak ada orang lain yang melihat", "Menolak tegas karena melanggar kode etik integritas profesi", "Menerima dan menyumbangkannya ke panti asuhan", "Meminta nominal yang lebih besar lagi", "Menerimanya sebagai bentuk penghargaan pelayanan"], answer: 1 },
+      { id: 99, section: 5, type: "text", text: "Apabila instruksi metode kerja dari atasan bertentangan dengan efisiensi riil di lapangan:", options: ["Sengaja membangkang perintah atasan langsung", "Mengikuti buta tanpa peduli kerugian hasil", "Mendiskusikan alternatif metode yang lebih efisien dengan argumen logis", "Membicarakan kejelekan atasan di belakang", "Menyuruh rekan lain yang memprotes"], answer: 2 },
+      { id: 100, section: 5, type: "text", text: "Komitmen penyelesaian tugas yang diserahkan kepada saya adalah tanggung jawab utama:", options: ["Menyelesaikannya tepat waktu dengan standar kualitas terbaik", "Menyelesaikannya hanya jika diawasi ketat oleh pimpinan", "Asal selesai tanpa peduli akurasi output data", "Mengulur waktu agar mendapatkan jatah lembur", "Melimpahkan pengerjaannya kepada anak magang"], answer: 0 }
+    ];
+
+    // MANAJEMEN STATE APLIKASI
+    let appState = {
+      branding: { title: "Alat Tes Psikologi Internal", subtitle: "SMK PGRI 2 Kediri", primaryColor: "#0f3a66" },
+      homepage: {
+        heroTitle: "Sistem Evaluasi Psikologi Mandiri",
+        heroText: "Platform internal asesmen pemetaan potensi bakat, minat kerja, adaptasi spasial, serta profil kepribadian kerja siswa.",
+        guideText: "1. Selesaikan total 5 section instrumen secara berurutan.\n2. Setiap bagian mengukur parameter psikologis yang unik.\n3. Kerjakan dengan jujur dalam suasana tenang.\n4. Jangan menutup peramban sebelum hasil terkirim secara penuh."
+      },
+      endpoint: "", spreadsheetId: "",
+      user: { name: "", id: "", class: "" },
+      currentQuestionIndex: 0,
+      answers: {}, flagged: {},
+      isTestStarted: false, timerSeconds: 0, timerInterval: null,
+      resultsList: []
+    };
+
+    let resultsChartInstance = null;
+
+    window.addEventListener("DOMContentLoaded", () => {
+      loadStateFromLocalStorage();
+      applyStateToVisuals();
+      populateAdminFields();
+      renderNavigationGrid();
+    });
+
+    function saveStateToLocalStorage() {
+      localStorage.setItem("psikotes_app_state_v2", JSON.stringify(appState));
+    }
+
+    function loadStateFromLocalStorage() {
+      const stored = localStorage.getItem("psikotes_app_state_v2");
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          appState = { ...appState, ...parsed };
+        } catch(e) { console.error("Error parsing backup state", e); }
+      }
+    }
+
+    function applyStateToVisuals() {
+      // Branding
+      document.title = `${appState.branding.title} - ${appState.branding.subtitle}`;
+      document.getElementById("siteTitleTag").innerText = `${appState.branding.title} - ${appState.branding.subtitle}`;
+      document.getElementById("sidebarBrandTitle").innerText = appState.branding.title;
+      document.getElementById("sidebarBrandSubtitle").innerText = appState.branding.subtitle;
+      document.documentElement.style.setProperty('--primary', appState.branding.primaryColor);
+
+      // Homepage
+      document.getElementById("heroDisplayTitle").innerText = appState.homepage.heroTitle;
+      document.getElementById("heroDisplayDesc").innerText = appState.homepage.heroText;
+      document.getElementById("guideDisplayContent").innerHTML = appState.homepage.guideText.replace(/\n/g, "<br/>");
+
+      // User Context Header
+      if (appState.isTestStarted) {
+        document.getElementById("userDisplayBar").innerText = `Peserta: ${appState.user.name} (${appState.user.class})`;
+      } else {
+        document.getElementById("userDisplayBar").innerText = "Status: Siap Memulai";
+      }
+    }
+
+    function populateAdminFields() {
+      document.getElementById("brandInputTitle").value = appState.branding.title;
+      document.getElementById("brandInputSubtitle").value = appState.branding.subtitle;
+      document.getElementById("brandInputColor").value = appState.branding.primaryColor;
+
+      document.getElementById("homeInputHeroTitle").value = appState.homepage.heroTitle;
+      document.getElementById("homeInputHeroText").value = appState.homepage.heroText;
+      document.getElementById("homeInputGuide").value = appState.homepage.guideText;
+
+      document.getElementById("connInputEndpoint").value = appState.endpoint;
+      document.getElementById("connInputSheetId").value = appState.spreadsheetId;
+    }
+
+    function triggerToast(msg) {
+      const toast = document.getElementById("toastContainer");
+      toast.innerText = msg; toast.style.display = "block";
+      setTimeout(() => { toast.style.display = "none"; }, 3500);
+    }
+
+    function switchView(viewName) {
+      document.querySelectorAll(".view-panel").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+
+      const titles = { home: "Beranda Utama", quiz: "Ruang Tes Psikometri", results: "Papan Hasil Evaluasi", admin: "Konfigurasi Gateway Admin" };
+      document.getElementById("viewCurrentTitle").innerText = titles[viewName] || "Sistem";
+
+      if (viewName === 'home') {
+        document.getElementById("panelHome").classList.add("active");
+        document.getElementById("navHomeBtn").classList.add("active");
+      } else if (viewName === 'quiz') {
+        if (!appState.isTestStarted) {
+          triggerToast("Silakan isi nama dan validasi identitas di Beranda terlebih dahulu!");
+          switchView('home');
+          return;
+        }
+        document.getElementById("panelQuiz").classList.add("active");
+        document.getElementById("navQuizBtn").classList.add("active");
+        renderCurrentQuestion();
+      } else if (viewName === 'results') {
+        document.getElementById("panelResults").classList.add("active");
+        document.getElementById("navResultsBtn").classList.add("active");
+        buildResultsDashboard();
+      } else if (viewName === 'admin') {
+        document.getElementById("panelAdmin").classList.add("active");
+        document.getElementById("navAdminBtn").classList.add("active");
+      }
+    }
+
+    function initiateQuizSession() {
+      const name = document.getElementById("regName").value.trim();
+      const idStr = document.getElementById("regId").value.trim();
+      const cls = document.getElementById("regClass").value;
+
+      if (!name || !idStr) {
+        triggerToast("Gagal! Nama Lengkap dan NIS wajib diisi.");
+        return;
+      }
+
+      appState.user = { name, id: idStr, class: cls };
+      appState.isTestStarted = true;
+      appState.currentQuestionIndex = 0;
+      appState.timerSeconds = 0;
+
+      saveStateToLocalStorage();
+      applyStateToVisuals();
+      startTimer();
+      switchView('quiz');
+      triggerToast(`Sesi ujian berhasil diverifikasi. Selamat mengerjakan, ${name}!`);
+    }
+
+    function startTimer() {
+      clearInterval(appState.timerInterval);
+      appState.timerInterval = setInterval(() => {
+        appState.timerSeconds++;
+        const mins = String(Math.floor(appState.timerSeconds / 60)).padStart(2, '0');
+        const secs = String(appState.timerSeconds % 60).padStart(2, '0');
+        document.getElementById("quizTimerNode").innerText = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function renderCurrentQuestion() {
+      const q = questions[appState.currentQuestionIndex];
+      
+      // Update Label Section Header
+      const sectionNames = { 1: "Section 1: Penalaran Figural (Spasial)", 2: "Section 2: Analogi Verbal", 3: "Section 3: Minat Kerja (RIASEC)", 4: "Section 4: Profil Kepribadian (DISC)", 5: "Section 5: Etika Kerja (SJT)" };
+      document.getElementById("quizCurrentSectionLabel").innerText = sectionNames[q.section];
+
+      // Handle Image Render Box
+      const imgBox = document.getElementById("qImageBox");
+      const imgFrame = document.getElementById("questionImageFrame");
+      if (q.type === "visual" && q.image) {
+        imgFrame.src = q.image;
+        imgBox.style.display = "flex";
+      } else {
+        imgBox.style.display = "none";
+        imgFrame.src = "";
+      }
+
+      // Handle Text Content
+      document.getElementById("questionTextFrame").innerText = `${appState.currentQuestionIndex + 1}. ${q.text}`;
+
+      // Handle Options Rendering
+      const optContainer = document.getElementById("optionsContainerNode");
+      optContainer.innerHTML = "";
+      
+      q.options.forEach((optText, idx) => {
+        const item = document.createElement("div");
+        item.className = "option-item";
+        if (appState.answers[q.id] === idx) item.classList.add("selected");
+        item.onclick = () => selectOptionIndex(q.id, idx);
+
+        const badge = document.createElement("div");
+        badge.className = "option-badge";
+        badge.innerText = String.fromCharCode(65 + idx);
+
+        const label = document.createElement("div");
+        label.className = "option-label";
+        label.innerText = optText;
+
+        item.appendChild(badge);
+        item.appendChild(label);
+        optContainer.appendChild(item);
+      });
+
+      // Handle Next Action Button Labeling
+      const nextBtn = document.getElementById("nextActionBtn");
+      if (appState.currentQuestionIndex === questions.length - 1) {
+        nextBtn.innerText = "Selesai & Kunci Jawaban";
+        nextBtn.style.background = "var(--success)";
+      } else {
+        nextBtn.innerText = "Selanjutnya";
+        nextBtn.style.background = "var(--primary-2)";
+      }
+
+      updateProgressBar();
+      renderNavigationGrid();
+    }
+
+    function selectOptionIndex(questionId, optionIdx) {
+      appState.answers[questionId] = optionIdx;
+      saveStateToLocalStorage();
+      renderCurrentQuestion();
+    }
+
+    function toggleFlagCurrent() {
+      const q = questions[appState.currentQuestionIndex];
+      appState.flagged[q.id] = !appState.flagged[q.id];
+      saveStateToLocalStorage();
+      renderNavigationGrid();
+      triggerToast("Status ragu-ragu diubah!");
+    }
+
+    function navigatePrev() {
+      if (appState.currentQuestionIndex > 0) {
+        appState.currentQuestionIndex--;
+        renderCurrentQuestion();
+      } else {
+        triggerToast("Ini adalah nomor urut pertama.");
+      }
+    }
+
+    function navigateNext() {
+      if (appState.currentQuestionIndex < questions.length - 1) {
+        appState.currentQuestionIndex++;
+        renderCurrentQuestion();
+      } else {
+        finalizeQuizProcess();
+      }
+    }
+
+    function jumpToQuestionIndex(idx) {
+      appState.currentQuestionIndex = idx;
+      renderCurrentQuestion();
+    }
+
+    function renderNavigationGrid() {
+      const grid = document.getElementById("numberNavGrid");
+      grid.innerHTML = "";
+      
+      questions.forEach((q, idx) => {
+        const cell = document.createElement("button");
+        cell.className = "nav-num";
+        cell.innerText = idx + 1;
+        
+        if (idx === appState.currentQuestionIndex) cell.classList.add("current");
+        else if (appState.flagged[q.id]) cell.classList.add("flagged");
+        else if (appState.answers[q.id] !== undefined && appState.answers[q.id] !== null) cell.classList.add("answered");
+
+        cell.onclick = () => jumpToQuestionIndex(idx);
+        grid.appendChild(cell);
+      });
+    }
+
+    function updateProgressBar() {
+      const total = questions.length;
+      const answeredCount = Object.keys(appState.answers).length;
+      const percent = (answeredCount / total) * 100;
+      document.getElementById("globalProgressFill").style.width = `${percent}%`;
+    }
+
+    function finalizeQuizProcess() {
+      if (confirm("Apakah Anda yakin ingin menyelesaikan seluruh instrumen ujian dan mengunci jawaban? Data tidak dapat diubah kembali.")) {
+        clearInterval(appState.timerInterval);
+        triggerToast("Kalkulasi skor kepribadian dan kognitif selesai dilakukan.");
+        switchView('results');
+      }
+    }
+
+    function calculateScores() {
+      let scores = { figural: 0, verbal: 0, R: 0, I: 0, A: 0, S: 0, E: 0, C: 0, D: 0, I_pers: 0, S_pers: 0, C_pers: 0, sjt: 0 };
+      
+      questions.forEach(q => {
+        const ans = appState.answers[q.id];
+        if (ans === undefined || ans === null) return;
+
+        if (q.section === 1 && ans === q.answer) scores.figural += 5;
+        if (q.section === 2 && ans === q.answer) scores.verbal += 5;
+        if (q.section === 3) {
+          const weight = ans + 1; // Skala Likert 1-5
+          if (q.scoreType === "R") scores.R += weight;
+          if (q.scoreType === "I") scores.I += weight;
+          if (q.scoreType === "A") scores.A += weight;
+          if (q.scoreType === "S") scores.S += weight;
+          if (q.scoreType === "E") scores.E += weight;
+          if (q.scoreType === "C") scores.C += weight;
+        }
+        if (q.section === 4) {
+          const weight = ans + 1; // Skala Likert 1-5
+          if (q.scoreType === "D") scores.D += weight;
+          if (q.scoreType === "I") scores.I_pers += weight;
+          if (q.scoreType === "S") scores.S += weight;
+          if (q.scoreType === "C") scores.C_pers += weight;
+        }
+        if (q.section === 5 && ans === q.answer) scores.sjt += 5;
+      });
+
+      return scores;
+    }
+
+    function buildResultsDashboard() {
+      const dataMetric = calculateScores();
+      const tbody = document.getElementById("resultsTableBody");
+      tbody.innerHTML = "";
+
+      const rows = [
+        { label: "Section 1: Spasial Figural", score: dataMetric.figural, status: "Tuntas" },
+        { label: "Section 2: Analogi Verbal", score: dataMetric.verbal, status: "Tuntas" },
+        { label: "Section 3: Dominansi RIASEC (Minat)", score: Math.max(dataMetric.R, dataMetric.I, dataMetric.A, dataMetric.S, dataMetric.E, dataMetric.C), status: "Terpetakan" },
+        { label: "Section 4: Karakter Utama DISC", score: Math.max(dataMetric.D, dataMetric.I_pers, dataMetric.S_pers, dataMetric.C_pers), status: "Teranalisis" },
+        { label: "Section 5: Kompetensi Etika Kerja (SJT)", score: dataMetric.sjt, status: "Optimal" }
+      ];
+
+      rows.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${r.label}</td><td><b>${r.score}</b> Poin</td><td><span class="badge badge-success">${r.status}</span></td>`;
+        tbody.appendChild(tr);
+      });
+
+      // Render Chart.js Radar Grafik
+      if (resultsChartInstance) resultsChartInstance.destroy();
+      const ctx = document.getElementById("resultsRadarChart").getContext("2d");
+      resultsChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['Spasial', 'Verbal', 'Realistik', 'Investigatif', 'Artistik', 'Sosial', 'Enterprising', 'Conventional', 'Dominance', 'Influence', 'Steadiness', 'Compliance', 'Etika SJT'],
+          datasets: [{
+            label: 'Profil Kompetensi Karakter Siswa',
+            data: [
+              dataMetric.figural, dataMetric.verbal, 
+              dataMetric.R, dataMetric.I, dataMetric.A, dataMetric.S, dataMetric.E, dataMetric.C,
+              dataMetric.D, dataMetric.I_pers, dataMetric.S_pers, dataMetric.C_pers,
+              dataMetric.sjt
+            ],
+            backgroundColor: 'rgba(29, 78, 216, 0.2)',
+            borderColor: '#1d4ed8',
+            pointBackgroundColor: '#0f3a66',
+            borderWidth: 2
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { r: { suggestMin: 0, max: 100 } } }
+      });
+    }
+
+    function syncDataToGateway() {
+      if (!appState.endpoint) {
+        triggerToast("Gagal! Tautan Web App script pada panel admin kosong.");
+        return;
+      }
+      
+      const payload = {
+        nis: appState.user.id,
+        nama: appState.user.name,
+        kelas: appState.user.class,
+        timestamp: new Date().toISOString(),
+        skor: calculateScores()
+      };
+
+      triggerToast("Menghubungkan ke gateway server cloud...");
+      fetch(appState.endpoint, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(() => { triggerToast("Sinkronisasi database sukses! Data berhasil diamankan."); })
+      .catch(err => { triggerToast("Koneksi terputus. Unduh file rekap CSV secara manual."); console.error(err); });
+    }
+
+    function exportResultsCSV() {
+      const data = calculateScores();
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "Parameter,Nilai Hasil Capaian\n";
+      csvContent += `Nama Resmi,${appState.user.name}\n`;
+      csvContent += `NIS Siswa,${appState.user.id}\n`;
+      csvContent += `Kelas,${appState.user.class}\n`;
+      
+      Object.keys(data).forEach(key => { csvContent += `${key},${data[key]}\n`; });
+
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.setAttribute("download", `Rekap_Hasil_Tes_BK_V2.csv`);
+      document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    }
+
+    function saveBrandingConfig() {
+      appState.branding.title = document.getElementById("brandInputTitle").value;
+      appState.branding.subtitle = document.getElementById("brandInputSubtitle").value;
+      appState.branding.primaryColor = document.getElementById("brandInputColor").value;
+      saveStateToLocalStorage(); applyStateToVisuals(); triggerToast("Konfigurasi visual disimpan!");
+    }
+
+    function saveHomepageConfig() {
+      appState.homepage.heroTitle = document.getElementById("homeInputHeroTitle").value;
+      appState.homepage.heroText = document.getElementById("homeInputHeroText").value;
+      appState.homepage.guideText = document.getElementById("homeInputGuide").value;
+      saveStateToLocalStorage(); applyStateToVisuals(); triggerToast("Konten beranda berhasil diperbarui!");
+    }
+
+    function saveConnectorConfig() {
+      appState.endpoint = document.getElementById("connInputEndpoint").value;
+      appState.spreadsheetId = document.getElementById("connInputSheetId").value;
+      saveStateToLocalStorage(); triggerToast("Sistem gateway konektor disimpan!");
+    }
+
+    function openLinkedSpreadsheet() {
+      if (appState.spreadsheetId) {
+        window.open(`https://docs.google.com/spreadsheets/d/${appState.spreadsheetId}`, '_blank');
+      } else {
+        triggerToast("ID Spreadsheet belum diatur!");
+      }
+    }
+  </script>
+</body>
+</html>
